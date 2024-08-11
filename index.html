@@ -1,16 +1,123 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>進捗管理システム</title>
-    <script>
-        let testVariable = 10;
-    </script>
 </head>
+
 <body>
-    <h1>
-        進捗管理システム
-    </h1>
+    <h1>進捗管理システム</h1>
+    <div id="currentTime">現在時刻: [System Loading Now]</div>
+    <div id="wordsToWrite">要求文字数: [System Loading Now]</div>
+    <div id="wordsPerHour">時速: [System Loading Now]</div>
+    <progress id="timeProgressBar" value="0" max="100" style="width: 100%"></progress>
+    <progress id="wordProgressBar" value="0" max="100" style="width: 100%"></progress>
+    <br />
+    <h2>カスタムモード</h2>
+    <label for="targetWordCount">予定文字数: </label>
+    <input type="number" id="targetWordCount" min="0" value="2500" data-id="word-count" />
+    <br />
+    <label for="startTime">開始時刻: </label>
+    <input type="time" id="startTime" value="23:00:00" data-id="time" />
+    <br />
+    <label for="endTime">終了時刻: </label>
+    <input type="time" id="endTime" value="23:55:00" data-id="time" />
+    <br />
+    <label for="offsetWordCount">オフセット文字数: </label>
+    <input type="number" id="offsetWordCount" min="0" value="0" data-id="word-count" />
+    <br />
+    <br />
+    <label for="nowWordCount">現在文字数: </label>
+    <input type="number" id="nowWordCount" min="0" value="0" data-id="word-count" />
+
+    <script>
+        // 時間表示用の関数
+        function timeToText(time) {
+            let hour = String(time.getHours()).padStart(2, "0");
+            let minute = String(time.getMinutes()).padStart(2, "0");
+            let second = String(time.getSeconds()).padStart(2, "0");
+            let timeText = `${hour}:${minute}:${second}`;
+            return timeText;
+        }
+
+        // 時間関連の更新
+        function updateTime() {
+            let currentTime = new Date();
+            currentHours =
+                currentTime.getHours() +
+                currentTime.getMinutes() / 60 +
+                currentTime.getSeconds() / 3600;
+            document.getElementById(
+                "currentTime"
+            ).innerHTML = `現在時刻: ${timeToText(currentTime)}`;
+
+            let targetWordCount = document.getElementById("targetWordCount").value;
+            let startTime = document.getElementById("startTime").value;
+            let endTime = document.getElementById("endTime").value;
+            let offsetWordCount = Number(
+                document.getElementById("offsetWordCount").value
+            );
+
+            let [startHours, startMinutes] = startTime.split(":").map(Number);
+            let [endHours, endMinutes] = endTime.split(":").map(Number);
+            let differenceInHours =
+                endHours + endMinutes / 60 - (startHours + startMinutes / 60);
+            let elapsedTimeInHours =
+                currentHours - (startHours + startMinutes / 60);
+            let timeProgressRate = elapsedTimeInHours / differenceInHours;
+            let needWordCount = Math.round(
+                targetWordCount * timeProgressRate + offsetWordCount
+            );
+            document.getElementById(
+                "wordsToWrite"
+            ).innerHTML = `要求文字数: ${needWordCount}字`;
+
+            let wordsPerHour = Math.round(targetWordCount / differenceInHours);
+            document.getElementById(
+                "wordsPerHour"
+            ).innerHTML = `時速: ${wordsPerHour}字`;
+
+            document.getElementById("timeProgressBar").value =
+                (elapsedTimeInHours / differenceInHours) * 100;
+        }
+
+        // 文字数関連の更新
+        function updateWord() {
+            let targetWordCount = document.getElementById("targetWordCount").value;
+            let offsetWordCount = document.getElementById("offsetWordCount").value;
+            let nowWordCount = document.getElementById("nowWordCount").value;
+
+            document.getElementById("wordProgressBar").value =
+                ((nowWordCount - offsetWordCount) / targetWordCount) * 100;
+        }
+
+        // 全体の更新
+        function updateSystem() {
+            updateTime();
+            updateWord();
+        }
+
+        setInterval(updateSystem, 200);
+
+        // リセット
+        function resetDefaults() {
+            updateSystem();
+        }
+
+        //以下デバッグ用
+        document.querySelectorAll('input[data-id="debug"]').forEach((input) => {
+            input.addEventListener("input", writeDebugText);
+        });
+
+        function writeDebugText() {
+            let inputNum = document.getElementById("debugNumberInput").value;
+            let currentTime = new Date();
+            let debugText = inputNum + " " + timeToText(currentTime);
+            document.getElementById("debugTextOutput").innerHTML = debugText;
+        }
+    </script>
 </body>
+
 </html>
