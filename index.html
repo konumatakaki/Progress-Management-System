@@ -31,6 +31,15 @@
     <br />
     <label for="nowWordCount">現在文字数: </label>
     <input type="number" id="nowWordCount" min="0" value="0" data-id="word-count" />
+    <br />
+    <br />
+    <button id="nowWordSet" data-id="set-count">現在文字数に設定</button>
+    <button id="offsetSet" data-id="set-offset">オフセット文字数に設定</button>
+    <br />
+    <div for="nowInputWordCount">文字数: 0文字</div>
+    <br />
+    <textarea id="textInput" data-id="textInput" style="width: 100%; height: 150px; resize: none"
+        placeholder="ここにテキストを入力"></textarea>
 
     <script>
         // 時間表示用の関数
@@ -97,26 +106,40 @@
         function updateSystem() {
             updateTime();
             updateWord();
+            updateCount();
         }
 
         setInterval(updateSystem, 200);
 
-        // リセット
-        function resetDefaults() {
-            updateSystem();
-        }
+        // テキストを入力からの文字数設定
+        document.addEventListener("DOMContentLoaded", function () {
+            const textInput = document.getElementById("textInput");
+            const wordCountDisplay = document.querySelector(
+                'div[for="nowInputWordCount"]'
+            );
+            const nowWordCountInput = document.getElementById("nowWordCount");
+            const offsetWordCountInput = document.getElementById("offsetWordCount");
+            const nowWordSetButton = document.getElementById("nowWordSet");
+            const offsetSetButton = document.getElementById("offsetSet");
 
-        //以下デバッグ用
-        document.querySelectorAll('input[data-id="debug"]').forEach((input) => {
-            input.addEventListener("input", writeDebugText);
+            // テキスト入力時に文字数をカウントして表示
+            textInput.addEventListener("input", function () {
+                const textLength = textInput.value.length;
+                wordCountDisplay.textContent = `文字数: ${textLength}文字`;
+            });
+
+            // 「現在文字数に設定」ボタンが押されたとき
+            nowWordSetButton.addEventListener("click", function () {
+                const currentWordCount = textInput.value.length;
+                nowWordCountInput.value = currentWordCount;
+            });
+
+            // 「オフセット文字数に設定」ボタンが押されたとき
+            offsetSetButton.addEventListener("click", function () {
+                const currentWordCount = textInput.value.length;
+                offsetWordCountInput.value = currentWordCount;
+            });
         });
-
-        function writeDebugText() {
-            let inputNum = document.getElementById("debugNumberInput").value;
-            let currentTime = new Date();
-            let debugText = inputNum + " " + timeToText(currentTime);
-            document.getElementById("debugTextOutput").innerHTML = debugText;
-        }
     </script>
 </body>
 
