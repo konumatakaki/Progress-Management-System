@@ -83,7 +83,7 @@
                 "wordsToWrite"
             ).innerHTML = `要求文字数: ${needWordCount}字`;
 
-            let wordsPerHour = Math.round(targetWordCount - offsetWordCount / differenceInHours);
+            let wordsPerHour = Math.round((targetWordCount - offsetWordCount) / differenceInHours);
             document.getElementById(
                 "wordsPerHour"
             ).innerHTML = `時速: ${wordsPerHour}字`;
